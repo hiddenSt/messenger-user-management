@@ -5,6 +5,9 @@ from testsuite.databases import pgsql
 
 # Start the tests via `make test-debug` or `make test-release`
 
+async def test_create_new_user(service_client):
+    response = await service_client.post('/v1/user', params={''})
+
 
 async def test_first_time_users(service_client):
     response = await service_client.post(

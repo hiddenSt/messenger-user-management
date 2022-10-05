@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(pg_service_template CXX)
+project(messenger-user-management CXX)
 
 include(third_party/userver/cmake/SetupEnvironment.cmake)
 include(GNUInstallDirs)
@@ -9,10 +9,12 @@ add_subdirectory(third_party/userver)
 
 # Common sources
 add_library(${PROJECT_NAME}_objs OBJECT
-    src/hello.hpp
-    src/hello.cpp
+        src/user_management_handler.hpp
+        src/user_management_handler.cpp
+        src/user_events_component.hpp
+        src/user_events_component.cpp
 )
-target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver-core userver-postgresql)
+target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver-core userver-postgresql userver-rabbitmq)
 
 
 # The Service

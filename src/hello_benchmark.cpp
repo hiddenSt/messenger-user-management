@@ -1,4 +1,4 @@
-#include "hello.hpp"
+#include "user_management_handler.hpp"
 
 #include <cstdint>   // for std::uint64_t
 #include <iterator>  // for std::size
@@ -7,6 +7,7 @@
 #include <benchmark/benchmark.h>
 #include <userver/engine/run_standalone.hpp>
 
+/*
 void HelloBenchmark(benchmark::State& state) {
   userver::engine::RunStandalone([&] {
     constexpr std::string_view kNames[] = {"userver", "is", "awesome", "!"};
@@ -14,11 +15,12 @@ void HelloBenchmark(benchmark::State& state) {
 
     for (auto _ : state) {
       const auto name = kNames[i++ % std::size(kNames)];
-      auto result = pg_service_template::SayHelloTo(
-          name, pg_service_template::UserType::kFirstTime);
+      auto result = messenger-user-management::SayHelloTo(
+          name, messenger-user-management::UserType::kFirstTime);
       benchmark::DoNotOptimize(result);
     }
   });
 }
 
 BENCHMARK(HelloBenchmark);
+ */
