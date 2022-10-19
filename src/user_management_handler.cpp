@@ -1,9 +1,9 @@
 #include "user_management_handler.hpp"
 
 #include "dto.hpp"
-#include "userver/server/http/http_status.hpp"
 
 #include <cstdint>
+#include <vector>
 
 #include <fmt/format.h>
 
@@ -14,6 +14,8 @@
 #include <userver/storages/postgres/component.hpp>
 #include <userver/urabbitmq/client.hpp>
 #include <userver/urabbitmq/component.hpp>
+#include <userver/server/http/http_status.hpp>
+#include <userver/storages/postgres/io/row_types.hpp>
 #include <userver/utils/assert.hpp>
 
 namespace messenger::user_management {
@@ -59,13 +61,11 @@ class CreateUserHandler final
       throw userver::server::handlers::InternalServerError();
     }
 
+    auto result_set = id_result.AsSetOf<UserInfo>(userver::storages::postgres::kRowTag);
+    UserInfo user_info = result_set[0];
     userver::formats::json::ValueBuilder response;
-    // response["id"] = idResult[0][0].As<std::uint64_t>();
-    response["username"] = id_result[0][1].As<std::string>();
-    response["first_name"] = id_result[0][2].As<std::string>();
-    response["last_name"] = id_result[0][3].As<std::string>();
-    response["email"] = id_result[0][4].As<std::string>();
     request.SetResponseStatus(userver::server::http::HttpStatus::kCreated);
+    response["user"] = user_info;
     
     return response.ExtractValue();
   }
@@ -91,21 +91,19 @@ class GetUserHandler final
       const userver::server::http::HttpRequest& request,
       const userver::formats::json::Value&,
       userver::server::request::RequestContext&) const override {
-    std::string id_str = request.GetPathArg("id");
-    
-    auto user_info_request = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
-    "SELECT id, email, username, first_name, last_name FROM messenger_schema.users WHERE id = $1", id_str);
 
-    if (user_info_request.RowsAffected() == 0) {
+    std::int32_t id = std::stol(request.GetPathArg("id"));
+    auto query_result = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
+    "SELECT id, username, first_name, last_name, email FROM messenger_schema.users WHERE id = $1", id);
+
+    if (query_result.RowsAffected() == 0) {
       throw userver::server::handlers::ResourceNotFound();
     }
-    
+
+    auto result_set = query_result.AsSetOf<UserInfo>(userver::storages::postgres::kRowTag);
+    UserInfo user_info = result_set[0];
     userver::formats::json::ValueBuilder response;
-    response["id"] = user_info_request[0][0].As<std::string>();
-    response["email"] = user_info_request[0][1].As<std::string>();
-    response["username"] = user_info_request[0][2].As<std::string>();
-    response["first_name"] = user_info_request[0][3].As<std::string>();
-    response["last_name"] = user_info_request[0][4].As<std::string>();
+    response["user"] = user_info;
 
     return response.ExtractValue();
   }
@@ -129,8 +127,19 @@ class DeleteUserHandler final
 
   userver::formats::json::Value HandleRequestJsonThrow(
       const userver::server::http ::HttpRequest& request,
-      const userver::formats::json::Value& json,
+      const userver::formats::json::Value&,
       userver::server::request::RequestContext&) const override {
+    std::int32_t id = std::stol(request.GetPathArg("id"));
+
+    auto query_result = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
+    "DELETE FROM messenger_schema.users WHERE id = $1", id);
+
+    if (query_result.RowsAffected() == 0) {
+      throw userver::server::handlers::ResourceNotFound();
+    }
+
+    request.SetResponseStatus(userver::server::http::HttpStatus::kNoContent);
+    
     return {};
   }
 
@@ -155,6 +164,11 @@ class PutUserHandler final
       const userver::server::http ::HttpRequest& request,
       const userver::formats::json::Value& json,
       userver::server::request::RequestContext&) const override {
+    std::int32_t id = std::stol(request.GetPathArg("id"));
+    User user = json.As<User>();
+
+    pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster, "", id);
+    
     return {};
   }
 

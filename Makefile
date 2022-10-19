@@ -69,14 +69,14 @@ install: build-release
 # Hide target, use only in docker environment
 --debug-start-in-docker: install
 	@sed -i 's/config_vars.yaml/config_vars.docker.yaml/g' /home/user/.local/etc/messenger-user-management/static_config.yaml
-	@psql 'postgresql://user:password@service-postgres:5432/messenger_user_management' -f ./postgresql/data/initial_data.sql
+	@psql 'postgresql://user:password@service-postgres-user-management:5432/messenger_user_management' -f ./postgresql/data/initial_data.sql
 	@/home/user/.local/bin/messenger-user-management \
 		--config /home/user/.local/etc/messenger-user-management/static_config.yaml
 
 # Hide target, use only in docker environment
 --debug-start-in-docker-debug: install-debug
 	@sed -i 's/config_vars.yaml/config_vars.docker.yaml/g' /home/user/.local/etc/messenger-user-management/static_config.yaml
-	@psql 'postgresql://user:password@service-postgres:5432/messenger_user_management' -f ./postgresql/data/initial_data.sql
+	@psql 'postgresql://user:password@service-postgres-user-management:5432/messenger_user_management' -f ./postgresql/data/initial_data.sql
 	@/home/user/.local/bin/messenger-user-management \
 		--config /home/user/.local/etc/messenger-user-management/static_config.yaml
 

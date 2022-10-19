@@ -6,4 +6,4 @@ is_testing: false
 
 server-port: 8080
 
-dbconnection: 'postgresql://user:password@service-postgres:5432/messenger_user_management'
+dbconnection: 'postgresql://user:password@service-postgres-user-management:5432/messenger_user_management'

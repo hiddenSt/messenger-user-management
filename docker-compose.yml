@@ -2,25 +2,25 @@ version: "3"
 
 services:
     rabbitmq:
-        container_name: service-rabbitmq
-        image: rabbitmq:3.11.1-management-alpine
-        environment:
-          - RABBITMQ_NODE_PORT=5672
-          - RABBITMQ_DEFAULT_USER=user
-          - RABBITMQ_DEFAULT_PASS=password
-        ports:
-          - "15672:15672"
-          - "5672:5672"
+         container_name: service-rabbitmq
+         image: rabbitmq:3.11.1-management-alpine
+         environment:
+           - RABBITMQ_NODE_PORT=5672
+           - RABBITMQ_DEFAULT_USER=user
+           - RABBITMQ_DEFAULT_PASS=password
+         ports:
+           - "15672:15672"
+           - "5672:5672"
 
     postgres:
-        container_name: service-postgres
+        container_name: service-postgres-user-management
         image: postgres:12
         environment:
           - POSTGRES_DB=messenger_user_management
           - POSTGRES_USER=user
           - POSTGRES_PASSWORD=password
         ports:
-          - 9090:5432
+          - 9080:5432
         volumes:
           - ./postgresql/schemas:/docker-entrypoint-initdb.d
           - ./.pgdata:/var/lib/postgresql/data
