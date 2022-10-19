@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <vector>
 
-#include <fmt/format.h>
-
 #include <userver/clients/dns/component.hpp>
 #include <userver/server/handlers/exceptions.hpp>
 #include <userver/server/handlers/http_handler_json_base.hpp>
