@@ -6,4 +6,4 @@ is_testing: false
 
 server-port: 8080
 
-dbconnection: 'postgresql://messenger-user-management_user:password@localhost:5432/messenger-user-management'
+dbconnection: 'postgresql://messenger-user-management_user:password@localhost:5432/messenger_user_management'

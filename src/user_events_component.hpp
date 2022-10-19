@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 #include <userver/rabbitmq.hpp>
@@ -17,13 +18,12 @@ class UserEventsComponent final : public userver::components::RabbitMQ {
 
   ~UserEventsComponent() override;
 
-  void NotifyUserIsDeleted();
-  void NotifyNewUserIsAdeed();
+  void NotifyUserIsDeleted(std::uint64_t id);
+  void NotifyNewUserIsCreated(std::uint64_t id);
 
  private:
   const userver::urabbitmq::Exchange exchange_;
   const userver::urabbitmq::Queue queue_;
-  const std::string routing_key_ = "";
 
   std::shared_ptr<userver::urabbitmq::Client> rabbit_client_;
 };

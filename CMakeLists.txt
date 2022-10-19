@@ -11,8 +11,10 @@ add_subdirectory(third_party/userver)
 add_library(${PROJECT_NAME}_objs OBJECT
         src/user_management_handler.hpp
         src/user_management_handler.cpp
-        src/user_events_component.hpp
-        src/user_events_component.cpp
+        src/dto.hpp
+        src/dto.cpp
+        # src/user_events_component.hpp
+        # src/user_events_component.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver-core userver-postgresql userver-rabbitmq)
 

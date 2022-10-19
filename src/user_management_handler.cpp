@@ -1,10 +1,14 @@
 #include "user_management_handler.hpp"
 
-#include "user_events_component.hpp"
+#include "dto.hpp"
+#include "userver/server/http/http_status.hpp"
+
+#include <cstdint>
 
 #include <fmt/format.h>
 
 #include <userver/clients/dns/component.hpp>
+#include <userver/server/handlers/exceptions.hpp>
 #include <userver/server/handlers/http_handler_json_base.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
@@ -27,38 +31,47 @@ class CreateUserHandler final
       : HttpHandlerJsonBase(config, component_context),
         pg_cluster_(component_context
                         .FindComponent<userver::components::Postgres>(
-                            "postgres-user-database")
-                        .GetCluster()),
-        notification_client_(
-            component_context.FindComponent<UserEventsComponent>()) {}
+                            "messenger-user-management")
+                        .GetCluster()) {}
 
   userver::formats::json::Value HandleRequestJsonThrow(
       const userver::server::http::HttpRequest& request,
       const userver::formats::json::Value& json,
       userver::server::request::RequestContext&) const override {
-    const auto& name = request.GetArg("name");
+    auto user = json.As<User>();
 
-    if (!name.empty()) {
-      auto result = pg_cluster_->Execute(
-          userver::storages::postgres::ClusterHostType::kMaster,
-          "INSERT INTO hello_schema.users(name, count) VALUES($1, 1) "
-          "ON CONFLICT (name) "
-          "DO UPDATE SET count = users.count + 1 "
-          "RETURNING users.count",
-          name);
+    auto result = pg_cluster_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster,
+        "INSERT INTO messenger_schema.users(username, first_name, last_name, "
+        "email) VALUES ($1, $2, $3, $4)",
+        user.name, user.first_name, user.last_name, user.email);
 
-      if (result.AsSingleRow<int>() > 1) {
-        // user_type = UserType::kKnown;
-      }
+    if (result.RowsAffected() == 0) {
+      throw userver::server::handlers::ClientError();
     }
 
-    // TODO:
-    return {};
+    auto id_result = pg_cluster_->Execute(
+        userver::storages::postgres::ClusterHostType::kMaster,
+        "SELECT id, username, first_name, last_name, email FROM messenger_schema.users WHERE username = $1 AND email = $2",
+        user.name, user.email);
+
+    if (id_result.IsEmpty()) {
+      throw userver::server::handlers::InternalServerError();
+    }
+
+    userver::formats::json::ValueBuilder response;
+    // response["id"] = idResult[0][0].As<std::uint64_t>();
+    response["username"] = id_result[0][1].As<std::string>();
+    response["first_name"] = id_result[0][2].As<std::string>();
+    response["last_name"] = id_result[0][3].As<std::string>();
+    response["email"] = id_result[0][4].As<std::string>();
+    request.SetResponseStatus(userver::server::http::HttpStatus::kCreated);
+    
+    return response.ExtractValue();
   }
 
  private:
   userver::storages::postgres::ClusterPtr pg_cluster_;
-  UserEventsComponent& notification_client_;
 };
 
 class GetUserHandler final
@@ -71,14 +84,30 @@ class GetUserHandler final
       : HttpHandlerJsonBase(config, context),
         pg_cluster_(context
                         .FindComponent<userver::components::Postgres>(
-                            "postgres-user-database")
+                            "messenger-user-management")
                         .GetCluster()) {}
 
   userver::formats::json::Value HandleRequestJsonThrow(
       const userver::server::http::HttpRequest& request,
-      const userver::formats::json::Value& json,
+      const userver::formats::json::Value&,
       userver::server::request::RequestContext&) const override {
-    return {};
+    std::string id_str = request.GetPathArg("id");
+    
+    auto user_info_request = pg_cluster_->Execute(userver::storages::postgres::ClusterHostType::kMaster,
+    "SELECT id, email, username, first_name, last_name FROM messenger_schema.users WHERE id = $1", id_str);
+
+    if (user_info_request.RowsAffected() == 0) {
+      throw userver::server::handlers::ResourceNotFound();
+    }
+    
+    userver::formats::json::ValueBuilder response;
+    response["id"] = user_info_request[0][0].As<std::string>();
+    response["email"] = user_info_request[0][1].As<std::string>();
+    response["username"] = user_info_request[0][2].As<std::string>();
+    response["first_name"] = user_info_request[0][3].As<std::string>();
+    response["last_name"] = user_info_request[0][4].As<std::string>();
+
+    return response.ExtractValue();
   }
 
  private:
@@ -95,9 +124,8 @@ class DeleteUserHandler final
       : HttpHandlerJsonBase(config, context),
         pg_cluster_(context
                         .FindComponent<userver::components::Postgres>(
-                            "postgres-user-database")
-                        .GetCluster()),
-        notification_client_(context.FindComponent<UserEventsComponent>()) {}
+                            "messenger-user-management")
+                        .GetCluster()) {}
 
   userver::formats::json::Value HandleRequestJsonThrow(
       const userver::server::http ::HttpRequest& request,
@@ -108,7 +136,6 @@ class DeleteUserHandler final
 
  private:
   userver::storages::postgres::ClusterPtr pg_cluster_;
-  UserEventsComponent& notification_client_;
 };
 
 class PutUserHandler final
@@ -121,7 +148,7 @@ class PutUserHandler final
       : HttpHandlerJsonBase(config, context),
         pg_cluster_(context
                         .FindComponent<userver::components::Postgres>(
-                            "postgres-user-database")
+                            "messenger-user-management")
                         .GetCluster()) {}
 
   userver::formats::json::Value HandleRequestJsonThrow(
@@ -141,8 +168,8 @@ void AppendUserManagement(userver::components::ComponentList& component_list) {
   component_list.Append<CreateUserHandler>()
       .Append<GetUserHandler>()
       .Append<DeleteUserHandler>()
-      .Append<UserEventsComponent>()
-      .Append<userver::components::Postgres>("postgres-user-database")
+      .Append<PutUserHandler>()
+      .Append<userver::components::Postgres>("messenger-user-management")
       .Append<userver::clients::dns::Component>();
 }
 
