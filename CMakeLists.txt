@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
-project(messenger-user-management CXX)
+project(messenger-user-management 
+        LANGUAGES CXX
+        VERSION "1.0.0")
 
 include(third_party/userver/cmake/SetupEnvironment.cmake)
 include(GNUInstallDirs)
@@ -13,11 +15,11 @@ add_library(${PROJECT_NAME}_objs OBJECT
         src/user_management_handler.cpp
         src/dto.hpp
         src/dto.cpp
-        # src/user_events_component.hpp
-        # src/user_events_component.cpp
+        src/user_events_component.hpp
+        src/user_events_component.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver-core userver-postgresql userver-rabbitmq)
-
+target_include_directories(${PROJECT_NAME}_objs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR})
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -32,6 +34,7 @@ if(DEFINED ENV{PREFIX})
 	set(CMAKE_INSTALL_PREFIX ${PREFIX_PATH})
 endif()
 
+set(CONFIG_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME})
 set(CONFIG_VAR_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}/config_vars.yaml)
 set(CONFIG_FALLBACK_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}/dynamic_config_fallback.json)
 

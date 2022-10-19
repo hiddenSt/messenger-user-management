@@ -9,8 +9,8 @@ services:
            - RABBITMQ_DEFAULT_USER=user
            - RABBITMQ_DEFAULT_PASS=password
          ports:
-           - "15672:15672"
-           - "5672:5672"
+           - 15672:15672
+           - 5672:5672
 
     postgres:
         container_name: service-postgres-user-management
@@ -33,7 +33,7 @@ services:
           - POSTGRES_USER=user
           - POSTGRES_PASSWORD=password
           - PREFIX=${PREFIX:-~/.local}
-          - CC
+          - CC=clang
           - CCACHE_DIR=/messenger-user-management/.ccache
           - CCACHE_HASHDIR
           - CCACHE_NOHASHDIR
@@ -41,7 +41,7 @@ services:
           - CCACHE_SIZE
           - CMAKE_OPTS
           - CORES_DIR=/cores
-          - CXX
+          - CXX=clang++
           - MAKE_OPTS
         volumes:
           - .:/messenger-user-management:rw

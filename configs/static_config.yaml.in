@@ -85,3 +85,15 @@ components_manager:
 
         dns-client:
             fs-task-processor: fs-task-processor
+
+        user-events:
+            secdist_alias: user-events
+            min_pool_size: 5
+            max_pool_size: 10
+            max_in_flight_requests: 5
+            use_secure_connection: false
+            
+        secdist:
+            config: @CONFIG_PATH@/secdist.json
+
+

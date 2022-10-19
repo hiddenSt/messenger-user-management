@@ -8,8 +8,9 @@
 namespace messenger::user_management {
 
 namespace components = userver::components;
+namespace rabbitmq = userver::urabbitmq;
 
-class UserEventsComponent final : public userver::components::RabbitMQ {
+class UserEventsComponent final : public components::RabbitMQ {
  public:
   static constexpr std::string_view kName = "user-events";
 
@@ -18,14 +19,15 @@ class UserEventsComponent final : public userver::components::RabbitMQ {
 
   ~UserEventsComponent() override;
 
-  void NotifyUserIsDeleted(std::uint64_t id);
-  void NotifyNewUserIsCreated(std::uint64_t id);
+  void NotifyUserIsDeleted(std::int32_t id);
+  void NotifyNewUserIsCreated(std::int32_t id);
 
  private:
-  const userver::urabbitmq::Exchange exchange_;
-  const userver::urabbitmq::Queue queue_;
+  const rabbitmq::Exchange exchange_{"user-events"};
+  const rabbitmq::Queue removed_event_queue_;
+  const rabbitmq::Queue added_event_queue_;
 
-  std::shared_ptr<userver::urabbitmq::Client> rabbit_client_;
+  std::shared_ptr<rabbitmq::Client> rabbit_client_;
 };
 
 }  // namespace messenger::user_management

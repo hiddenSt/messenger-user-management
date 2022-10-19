@@ -4,6 +4,8 @@
 
 namespace messenger::user_management {
 
-void AppendUserManagement(userver::components::ComponentList& component_list);
+namespace components = userver::components;
+
+void AppendUserManagement(components::ComponentList& component_list);
 
 }  // namespace messenger::user_management

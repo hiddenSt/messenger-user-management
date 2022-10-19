@@ -23,10 +23,12 @@ struct UserInfo {
   std::string email;
 };
 
-User Parse(const userver::formats::json::Value& json,
-           userver::formats::parse::To<User>);
+namespace json = userver::formats::json;
+namespace formats = userver::formats;
 
-userver::formats::json::Value Serialize(const UserInfo& data,
-                               userver::formats::serialize::To<userver::formats::json::Value>);
+User Parse(const json::Value& json, formats::parse::To<User>);
+
+json::Value Serialize(const UserInfo& data,
+                      formats::serialize::To<json::Value>);
 
 }  // namespace messenger::user_management
