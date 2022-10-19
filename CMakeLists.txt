@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(messenger-user-management 
         LANGUAGES CXX
-        VERSION "1.0.0")
+        VERSION 0.0.1)
 
 include(third_party/userver/cmake/SetupEnvironment.cmake)
 include(GNUInstallDirs)
