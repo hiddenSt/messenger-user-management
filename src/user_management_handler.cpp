@@ -42,7 +42,7 @@ class CreateUserHandler final : public userver::server::handlers::HttpHandlerJso
 
     auto result = pg_cluster_->Execute(postgres::ClusterHostType::kMaster,
                                        "INSERT INTO messenger_schema.user(username, first_name, last_name, "
-                                       "email) VALUES ($1, $2, $3, $4)",
+                                       "email) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING",
                                        user.name, user.first_name, user.last_name, user.email);
 
     if (result.RowsAffected() == 0) {
