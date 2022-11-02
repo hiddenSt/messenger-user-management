@@ -28,7 +28,6 @@ namespace formats = userver::formats;
 
 User Parse(const json::Value& json, formats::parse::To<User>);
 
-json::Value Serialize(const UserInfo& data,
-                      formats::serialize::To<json::Value>);
+json::Value Serialize(const UserInfo& data, formats::serialize::To<json::Value>);
 
 }  // namespace messenger::user_management

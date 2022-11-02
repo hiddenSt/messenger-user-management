@@ -14,8 +14,7 @@ class UserEventsComponent final : public components::RabbitMQ {
  public:
   static constexpr std::string_view kName = "user-events";
 
-  UserEventsComponent(const components::ComponentConfig& config,
-                      const components::ComponentContext& context);
+  UserEventsComponent(const components::ComponentConfig& config, const components::ComponentContext& context);
 
   ~UserEventsComponent() override;
 
