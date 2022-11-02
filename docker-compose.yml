@@ -1,6 +1,13 @@
 version: "3"
 
 services:
+    nginx:
+        image: nginx:1.23.2-alpine
+        ports:
+          - "8088:80"
+        volumes:
+          - ./nginx:/etc/nginx
+
     rabbitmq:
          container_name: service-rabbitmq
          image: rabbitmq:3.11.1-management-alpine
@@ -25,7 +32,7 @@ services:
           - ./postgresql/schemas:/docker-entrypoint-initdb.d
           - ./.pgdata:/var/lib/postgresql/data
 
-    messenger-user-management-service:
+    messenger_user_management_service:
         image: ghcr.io/userver-framework/docker-userver-build-base:v1a
         privileged: true
         environment:
@@ -47,9 +54,8 @@ services:
           - .:/messenger-user-management:rw
           - ./third_party/userver/tools/docker:/tools:ro
           - ${TC_CORES_DIR:-./.cores}:/cores:rw
-        ports:
-          - 8080:8080
         working_dir: /messenger-user-management
+        command: make -- --debug-start-in-docker-debug
         entrypoint:
           - /tools/run_as_user.sh
         depends_on:
