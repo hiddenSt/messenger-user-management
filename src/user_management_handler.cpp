@@ -1,10 +1,10 @@
 #include <user_management_handler.hpp>
 
 #include <cstdint>
-#include <string_view>
-#include <vector>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <vector>
 
 #include <userver/clients/dns/component.hpp>
 #include <userver/server/handlers/exceptions.hpp>
@@ -103,12 +103,12 @@ class CreateUserHandler final : public userver::server::handlers::HttpHandlerJso
     if (result.RowsAffected() == 0) {
       request.SetResponseStatus(server::http::HttpStatus::kBadRequest);
       response_body["error"] = "User with given nickname and email already exists.";
-      
+
       return response_body.ExtractValue();
     }
 
     auto id_result = pg_cluster_->Execute(postgres::ClusterHostType::kMaster,
-                                          "SELECT id, username, first_name, last_name, email FROM "
+                                          "SELECT id, username, first_name, last_name, email, password FROM "
                                           "messenger_schema.user WHERE username = $1 AND email = $2",
                                           user.username, user.email);
 
@@ -143,7 +143,7 @@ class GetUserHandler final : public server::handlers::HttpHandlerJsonBase {
                                      server::request::RequestContext&) const override {
     std::int32_t id = std::stol(request.GetPathArg("id"));
     auto query_result = pg_cluster_->Execute(postgres::ClusterHostType::kMaster,
-                                             "SELECT id, username, first_name, last_name, email FROM "
+                                             "SELECT id, username, first_name, last_name, email, password FROM "
                                              "messenger_schema.user WHERE id = $1",
                                              id);
 

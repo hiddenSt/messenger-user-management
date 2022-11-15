@@ -5,8 +5,12 @@
 namespace messenger::user_management {
 
 User Parse(const json::Value& json, formats::parse::To<User>) {
-  return User{0, json["username"].As<std::string>(), json["first_name"].As<std::string>(),
-              json["last_name"].As<std::string>(), json["email"].As<std::string>(), json["password"].As<std::string>()};
+  return User{0,
+              json["username"].As<std::string>(),
+              json["first_name"].As<std::string>(),
+              json["last_name"].As<std::string>(),
+              json["email"].As<std::string>(),
+              json["password"].As<std::string>()};
 }
 
 json::Value Serialize(const User& data, formats::serialize::To<json::Value>) {

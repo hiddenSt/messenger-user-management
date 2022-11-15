@@ -6,11 +6,11 @@ from testsuite.databases import pgsql
 # Start the tests via `make test-debug` or `make test-release`
 
 async def test_create_new_user(service_client):
-    response = await service_client.post('/v1/user', 
-                                         params={'email': 'unique@email.com', 
-                                                 'password': 'pass', 
-                                                 'username': 'unique', 
-                                                 'first_name': 'fff', 
+    response = await service_client.post('/v1/user',
+                                         params={'email': 'unique@email.com',
+                                                 'password': 'pass',
+                                                 'username': 'unique',
+                                                 'first_name': 'fff',
                                                  'last_name': 'lll'})
     assert response.status == 201
 
