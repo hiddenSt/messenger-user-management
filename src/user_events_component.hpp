@@ -23,8 +23,8 @@ class UserEventsComponent final : public components::RabbitMQ {
 
  private:
   const rabbitmq::Exchange exchange_{"user-events"};
-  const rabbitmq::Queue removed_event_queue_;
-  const rabbitmq::Queue added_event_queue_;
+  const rabbitmq::Queue removed_event_queue_{"user-removed-queue"};
+  const rabbitmq::Queue added_event_queue_{"user-created-queue"};
 
   std::shared_ptr<rabbitmq::Client> rabbit_client_;
 };

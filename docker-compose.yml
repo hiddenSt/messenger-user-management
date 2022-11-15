@@ -16,9 +16,10 @@ services:
         networks:
           - postgres
 
-    messenger_user_management_service:
+    user_management_service:
         image: ghcr.io/userver-framework/docker-userver-build-base:v1a
         privileged: true
+        container_name: user_service
         environment:
           - POSTGRES_DB=messenger_user_management
           - POSTGRES_USER=user
@@ -45,7 +46,6 @@ services:
           - /tools/run_as_user.sh
         depends_on:
           - postgres
-          - rabbitmq
         networks:
           - postgres
           - nginx

@@ -1,4 +1,4 @@
-#include "user_events_component.hpp"
+#include <user_events_component.hpp>
 
 #include <string>
 
@@ -16,7 +16,7 @@ UserEventsComponent::UserEventsComponent(const components::ComponentConfig& conf
     : components::RabbitMQ{config, context}, rabbit_client_{GetClient()} {
   const auto setup_deadline = engine::Deadline::FromDuration(std::chrono::seconds{2});
   auto admin_channel = rabbit_client_->GetAdminChannel(setup_deadline);
-  admin_channel.DeclareExchange(exchange_, rabbitmq::Exchange::Type::kDirect, setup_deadline);
+  admin_channel.DeclareExchange(exchange_, rabbitmq::Exchange::Type::kFanOut, setup_deadline);
 
   admin_channel.DeclareQueue(added_event_queue_, setup_deadline);
   admin_channel.BindQueue(exchange_, added_event_queue_, kUserCreatedRoutingKey, setup_deadline);
