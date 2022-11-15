@@ -82,15 +82,15 @@ install: build-release
 
 # Start targets makefile in docker enviroment
 docker-impl-%:
-	docker-compose run --rm user_management_service make $*
+	docker-compose run --rm user_service make $*
 
 # Build and runs service in docker environment
 docker-start-service-debug:
-	@docker-compose run -p 8080:8080 --rm user_management_service make -- --debug-start-in-docker-debug
+	@docker-compose run --name user_service -p 8080:8080 --rm user_service make -- --debug-start-in-docker-debug
 
 # Build and runs service in docker environment
 docker-start-service:
-	@docker-compose run -p 8080:8080 --rm user_management_service make -- --debug-start-in-docker
+	@docker-compose run -p 8080:8080 --rm user_service make -- --debug-start-in-docker
 
 # Stop docker container and remove PG data
 docker-clean-data:

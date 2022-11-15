@@ -45,10 +45,6 @@ std::optional<std::string> ValidatePostBody(const json::Value& body) {
     return "Body must contain string field 'email'.";
   }
 
-  if (!body.HasMember("password")) {
-    return "Body must contain string field 'password'";
-  }
-
   if (!body["username"].IsString()) {
     return "Field 'username' must be a string.";
   }
@@ -64,11 +60,7 @@ std::optional<std::string> ValidatePostBody(const json::Value& body) {
   if (!body["email"].IsString()) {
     return "Field 'email' must be a string.";
   }
-
-  if (!body["password"].IsString()) {
-    return "Field 'password' must be a string.";
-  }
-
+  
   return std::nullopt;
 }
 
@@ -108,7 +100,7 @@ class CreateUserHandler final : public userver::server::handlers::HttpHandlerJso
     }
 
     auto id_result = pg_cluster_->Execute(postgres::ClusterHostType::kMaster,
-                                          "SELECT id, username, first_name, last_name, email, password FROM "
+                                          "SELECT id, username, first_name, last_name, email FROM "
                                           "messenger_schema.user WHERE username = $1 AND email = $2",
                                           user.username, user.email);
 
@@ -143,7 +135,7 @@ class GetUserHandler final : public server::handlers::HttpHandlerJsonBase {
                                      server::request::RequestContext&) const override {
     std::int32_t id = std::stol(request.GetPathArg("id"));
     auto query_result = pg_cluster_->Execute(postgres::ClusterHostType::kMaster,
-                                             "SELECT id, username, first_name, last_name, email, password FROM "
+                                             "SELECT id, username, first_name, last_name, email FROM "
                                              "messenger_schema.user WHERE id = $1",
                                              id);
 

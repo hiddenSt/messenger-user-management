@@ -13,7 +13,6 @@ struct User {
   std::string first_name;
   std::string last_name;
   std::string email;
-  std::string password;
 };
 
 namespace json = userver::formats::json;

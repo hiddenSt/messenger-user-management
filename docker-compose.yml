@@ -16,7 +16,7 @@ services:
         networks:
           - postgres
 
-    user_management_service:
+    user_service:
         image: ghcr.io/userver-framework/docker-userver-build-base:v1a
         privileged: true
         container_name: user_service
@@ -42,6 +42,8 @@ services:
         working_dir: /messenger-user-management
         ports:
           - "8080:8080"
+        expose:
+          - "8080"
         entrypoint:
           - /tools/run_as_user.sh
         depends_on:
