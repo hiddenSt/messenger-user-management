@@ -1,24 +1,6 @@
 version: "3"
 
 services:
-    nginx:
-        image: nginx:1.23.2-alpine
-        ports:
-          - "8088:80"
-        volumes:
-          - ./nginx:/etc/nginx
-
-    rabbitmq:
-         container_name: service-rabbitmq
-         image: rabbitmq:3.11.1-management-alpine
-         environment:
-           - RABBITMQ_NODE_PORT=5672
-           - RABBITMQ_DEFAULT_USER=user
-           - RABBITMQ_DEFAULT_PASS=password
-         ports:
-           - 15672:15672
-           - 5672:5672
-
     postgres:
         container_name: service-postgres-user-management
         image: postgres:12
@@ -31,6 +13,8 @@ services:
         volumes:
           - ./postgresql/schemas:/docker-entrypoint-initdb.d
           - ./.pgdata:/var/lib/postgresql/data
+        networks:
+          - postgres
 
     messenger_user_management_service:
         image: ghcr.io/userver-framework/docker-userver-build-base:v1a
@@ -55,9 +39,22 @@ services:
           - ./third_party/userver/tools/docker:/tools:ro
           - ${TC_CORES_DIR:-./.cores}:/cores:rw
         working_dir: /messenger-user-management
-        command: make -- --debug-start-in-docker-debug
+        ports:
+          - "8080:8080"
         entrypoint:
           - /tools/run_as_user.sh
         depends_on:
           - postgres
           - rabbitmq
+        networks:
+          - postgres
+          - nginx
+          - rabbitmq
+
+networks:
+  postgres:
+    driver: bridge
+  nginx:
+    external: true
+  rabbitmq:
+    external: true
